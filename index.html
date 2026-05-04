@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reuniões Semanais — Inscrição</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-eyebrow">Reuniões semanais</div>
+    <h1>Junta-te ao grupo</h1>
+    <div class="divider"></div>
+    <p class="header-sub">Preenche os teus dados e indica quando estás disponível.<br>As reuniões têm duração de 1 hora.</p>
+  </div>
+
+  <div class="card" id="form-card">
+
+    <div class="field">
+      <label for="f-nome">Nome completo</label>
+      <input type="text" id="f-nome" placeholder="O teu nome" autocomplete="name">
+    </div>
+
+    <div class="field">
+      <label for="f-contacto">Contacto (telemóvel ou email)</label>
+      <input type="text" id="f-contacto" placeholder="Ex: 912 345 678" autocomplete="tel">
+    </div>
+
+    <div class="field">
+      <label for="f-turma">Turma</label>
+      <input type="text" id="f-turma" placeholder="Ex: 10ºA">
+    </div>
+
+    <div class="field">
+      <label for="f-escola">Escola</label>
+      <input type="text" id="f-escola" placeholder="Nome da escola" autocomplete="organization">
+    </div>
+
+    <div class="section-label">Disponibilidade</div>
+    <p class="section-hint">Seleciona os dias e horas em que podes estar presente (reunião = 1h)</p>
+
+    <div class="availability-grid">
+      <table class="grid-table" id="avail-grid"></table>
+    </div>
+
+<div class="field">
+  <label for="f-notas">Observações (opcional)</label>
+  <textarea id="f-notas" placeholder="Algo que queiras dizer ou perguntar..." rows="3"></textarea>
+</div>
+
+    <button class="submit-btn" id="submit-btn" type="button" onclick="submitForm()">
+      Confirmar inscrição
+    </button>
+
+    <div class="error-msg" id="error-msg">
+      Por favor preenche todos os campos e seleciona pelo menos um horário.
+    </div>
+
+  </div>
+
+  <div class="success-screen" id="success-screen">
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h2>Inscrição feita!</h2>
+    <p>Os teus dados foram registados.<br>Entraremos em contacto em breve.</p>
+  </div>
+
+  <script src="form.js"></script>
+</body>
+</html>
