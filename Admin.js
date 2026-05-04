@@ -1,6 +1,4 @@
 
-Copiar
-
 const ADMIN_PASSWORD = 'casajuventude';
 const FORMSPREE_ID   = 'mkoyjvgy';
  
