@@ -1,19 +1,19 @@
 const SHEET_URL = 'https://sheetdb.io/api/v1/nyti730suns7g';
-
+ 
 const DAYS  = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'];
 const HOURS = ['10h', '11h', '12h', '13h', '14h', '15h', '16h', '17h', '18h'];
-
+ 
 const selected = new Set();
-
+ 
 function buildGrid() {
   const table = document.getElementById('avail-grid');
-
+ 
   const thead = document.createElement('thead');
   const headRow = document.createElement('tr');
   const emptyTh = document.createElement('th');
   emptyTh.className = 'hour-col';
   headRow.appendChild(emptyTh);
-
+ 
   DAYS.forEach(day => {
     const th = document.createElement('th');
     th.textContent = day.slice(0, 3);
@@ -21,11 +21,11 @@ function buildGrid() {
   });
   thead.appendChild(headRow);
   table.appendChild(thead);
-
+ 
   const tbody = document.createElement('tbody');
   HOURS.forEach(hour => {
     const tr = document.createElement('tr');
-
+ 
     const hourTd = document.createElement('td');
     hourTd.className = 'hour-col';
     const hourLabel = document.createElement('span');
@@ -33,7 +33,7 @@ function buildGrid() {
     hourLabel.textContent = hour;
     hourTd.appendChild(hourLabel);
     tr.appendChild(hourTd);
-
+ 
     DAYS.forEach(day => {
       const td = document.createElement('td');
       const btn = document.createElement('button');
@@ -45,13 +45,13 @@ function buildGrid() {
       td.appendChild(btn);
       tr.appendChild(td);
     });
-
+ 
     tbody.appendChild(tr);
   });
-
+ 
   table.appendChild(tbody);
 }
-
+ 
 function toggleSlot(btn) {
   const slot = btn.dataset.slot;
   if (selected.has(slot)) {
@@ -62,24 +62,24 @@ function toggleSlot(btn) {
     btn.classList.add('on');
   }
 }
-
+ 
 async function submitForm() {
   const nome     = document.getElementById('f-nome').value.trim();
   const contacto = document.getElementById('f-contacto').value.trim();
   const turma    = document.getElementById('f-turma').value.trim();
   const escola   = document.getElementById('f-escola').value.trim();
   const notas    = document.getElementById('f-notas').value.trim();
-
+ 
   const err = document.getElementById('error-msg');
-
+ 
   if (!nome || !contacto || !turma || !escola || selected.size === 0) {
     err.style.display = 'block';
     return;
   }
   err.style.display = 'none';
-
+ 
   document.getElementById('submit-btn').disabled = true;
-
+ 
   const dispStr = [...selected]
     .sort((a, b) => {
       const [dayA, hA] = a.split('|');
@@ -90,28 +90,27 @@ async function submitForm() {
     })
     .map(s => s.replace('|', ' '))
     .join(', ');
-
+ 
   const payload = {
     data: [{
-      nome,
-      contacto,
-      turma,
-      escola,
-      disponibilidade: dispStr,
-      notas,
-      data: new Date().toLocaleString('pt-PT')
+      Nome: nome,
+      Contacto: contacto,
+      Turma: turma,
+      Escola: escola,
+      Disponibilidade: dispStr,
+      Notas: notas
     }]
   };
-
+ 
   fetch(SHEET_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   }).catch(() => {});
-
+ 
   document.getElementById('form-card').style.display = 'none';
   document.querySelector('.header').style.display = 'none';
   document.getElementById('success-screen').style.display = 'block';
 }
-
+ 
 document.addEventListener('DOMContentLoaded', buildGrid);
