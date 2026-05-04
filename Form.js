@@ -1,4 +1,4 @@
-const SCRIPT_URL = 'https://formspree.io/f/mkoyjvgy';
+const SHEET_URL = 'https://sheetdb.io/api/v1/nyti730suns7g';
  
 const DAYS  = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'];
 const HOURS = ['10h', '11h', '12h', '13h', '14h', '15h', '16h', '17h', '18h'];
@@ -63,7 +63,7 @@ function toggleSlot(btn) {
   }
 }
  
-function submitForm() {
+async function submitForm() {
   const nome     = document.getElementById('f-nome').value.trim();
   const contacto = document.getElementById('f-contacto').value.trim();
   const turma    = document.getElementById('f-turma').value.trim();
@@ -91,9 +91,19 @@ function submitForm() {
     .map(s => s.replace('|', ' '))
     .join(', ');
  
-  const payload = { nome, contacto, turma, escola, disponibilidade: dispStr, notas };
+  const payload = {
+    data: [{
+      nome,
+      contacto,
+      turma,
+      escola,
+      disponibilidade: dispStr,
+      notas,
+      data: new Date().toLocaleString('pt-PT')
+    }]
+  };
  
-  fetch(SCRIPT_URL, {
+  fetch(SHEET_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
