@@ -1,5 +1,5 @@
 const ADMIN_PASSWORD = 'casajuventude';
-const FORMSPREE_ID   = 'mkoyjvgy';
+const SHEET_URL      = 'https://sheetdb.io/api/v1/nyti730suns7g';
  
 const DAY_ORDER = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'];
  
@@ -13,7 +13,6 @@ const PALETTES = [
  
 let allData = [];
  
-// ── LOGIN ──────────────────────────────────────────────────
 function doLogin() {
   const pw = document.getElementById('pw-input').value;
   if (pw === ADMIN_PASSWORD) {
@@ -31,52 +30,20 @@ function logout() {
   document.getElementById('pw-input').value = '';
 }
  
-// ── DATA ───────────────────────────────────────────────────
 async function loadData() {
   const container = document.getElementById('rooms-container');
   container.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div> A carregar...</div>';
  
   try {
-    const res  = await fetch(`https://formspree.io/api/0/forms/${FORMSPREE_ID}/submissions`, {
-      headers: { 'Accept': 'application/json' }
-    });
+    const res  = await fetch(SHEET_URL);
     const json = await res.json();
- 
-    if (json.submissions) {
-      allData = json.submissions.map(s => ({
-        timestamp:       s.date,
-        nome:            s.data?.nome            || s.data?.Nome            || '',
-        contacto:        s.data?.contacto        || s.data?.Contacto        || '',
-        turma:           s.data?.turma           || s.data?.Turma           || '',
-        escola:          s.data?.escola          || s.data?.Escola          || '',
-        disponibilidade: s.data?.disponibilidade || s.data?.Disponibilidade || '',
-        notas:           s.data?.notas           || s.data?.Notas           || '',
-      }));
-      renderRooms();
-    } else {
-      // API não disponível no plano gratuito — mostra mensagem
-      container.innerHTML = `
-        <div class="empty-state">
-          <span>🔒</span>
-          A API do Formspree requer plano pago.<br><br>
-          <a href="https://formspree.io/forms/${FORMSPREE_ID}/submissions" target="_blank" style="color:var(--accent);font-weight:500;">
-            Ver inscrições no Formspree →
-          </a>
-        </div>`;
-    }
+    allData = json;
+    renderRooms();
   } catch (e) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <span>⚠️</span>
-        Não foi possível carregar os dados.<br><br>
-        <a href="https://formspree.io/forms/${FORMSPREE_ID}/submissions" target="_blank" style="color:var(--accent);font-weight:500;">
-          Ver inscrições no Formspree →
-        </a>
-      </div>`;
+    container.innerHTML = '<div class="empty-state"><span>⚠️</span>Erro ao carregar dados.</div>';
   }
 }
  
-// ── RENDER ─────────────────────────────────────────────────
 function getInitials(nome) {
   return nome.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
 }
@@ -160,13 +127,12 @@ function renderRooms() {
   container.appendChild(grid);
 }
  
-// ── EXPORT CSV ─────────────────────────────────────────────
 function exportCSV() {
   if (allData.length === 0) { alert('Não há dados para exportar.'); return; }
  
   const headers = ['Nome', 'Contacto', 'Turma', 'Escola', 'Disponibilidade', 'Notas', 'Data'];
   const rows = allData.map(r =>
-    [r.nome, r.contacto, r.turma, r.escola, r.disponibilidade, r.notas, r.timestamp]
+    [r.nome, r.contacto, r.turma, r.escola, r.disponibilidade, r.notas, r.data]
       .map(v => `"${String(v || '').replace(/"/g, '""')}"`)
       .join(',')
   );
@@ -181,7 +147,6 @@ function exportCSV() {
   URL.revokeObjectURL(url);
 }
  
-// ── INIT ───────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('pw-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') doLogin();
