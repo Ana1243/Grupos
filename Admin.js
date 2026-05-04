@@ -1,7 +1,7 @@
 const ADMIN_PASSWORD = 'casajuventude';
 const SHEET_URL      = 'https://sheetdb.io/api/v1/nyti730suns7g';
 
-const DAY_ORDER = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'];
+const DAY_ORDER = ['Segunda', 'Terca', 'Quarta', 'Quinta', 'Sexta'];
 
 const PALETTES = [
   { dot:'#c1440e', bg:'#f5ddd5', text:'#7a2508', pillBg:'#fae8e1', pillText:'#7a2508' },
@@ -45,7 +45,11 @@ async function loadData() {
 }
 
 function getInitials(nome) {
-  return nome.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
+  return (nome || '?').split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
+}
+
+function normDay(day) {
+  return day.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
 function renderRooms() {
@@ -60,7 +64,8 @@ function renderRooms() {
 
   const rooms = {};
   allData.forEach(row => {
-    const slots = (row.Disponibilidade || row.disponibilidade || '').split(',').map(s => s.trim()).filter(Boolean);
+    const disp = row.Disponibilidade || row.disponibilidade || '';
+    const slots = disp.split(',').map(s => s.trim()).filter(Boolean);
     slots.forEach(slot => {
       if (!rooms[slot]) rooms[slot] = [];
       rooms[slot].push(row);
@@ -68,11 +73,13 @@ function renderRooms() {
   });
 
   const sortedSlots = Object.keys(rooms).sort((a, b) => {
-    const [dayA, hourA] = a.split(' ');
-    const [dayB, hourB] = b.split(' ');
+    const dayA = normDay(a.split(' ')[0]);
+    const dayB = normDay(b.split(' ')[0]);
+    const hourA = parseInt(a.split(' ')[1]) || 0;
+    const hourB = parseInt(b.split(' ')[1]) || 0;
     const di = d => DAY_ORDER.indexOf(d);
-    const hi = h => parseInt(h);
-    return di(dayA) !== di(dayB) ? di(dayA) - di(dayB) : hi(hourA) - hi(hourB);
+    const ia = di(dayA), ib = di(dayB);
+    return ia !== ib ? ia - ib : hourA - hourB;
   });
 
   const grid = document.createElement('div');
@@ -90,13 +97,13 @@ function renderRooms() {
       <tr>
         <td>
           <div class="avatar-cell">
-            <div class="avatar" style="background:${pal.bg};color:${pal.text}">${getInitials(p.nome)}</div>
-            <span>${p.nome}</span>
+            <div class="avatar" style="background:${pal.bg};color:${pal.text}">${getInitials(p.Nome || p.nome)}</div>
+            <span>${p.Nome || p.nome || ''}</span>
           </div>
         </td>
-        <td>${p.Contacto || p.contacto}</td>
-        <td>${p.Turma || p.turma}</td>
-        <td>${p.Escola || p.escola}</td>
+        <td>${p.Contacto || p.contacto || ''}</td>
+        <td>${p.Turma || p.turma || ''}</td>
+        <td>${p.Escola || p.escola || ''}</td>
         <td>${p.Notas || p.notas || '—'}</td>
       </tr>`).join('');
 
@@ -130,9 +137,9 @@ function renderRooms() {
 function exportCSV() {
   if (allData.length === 0) { alert('Não há dados para exportar.'); return; }
 
-  const headers = ['Nome', 'Contacto', 'Turma', 'Escola', 'Disponibilidade', 'Notas', 'Data'];
+  const headers = ['Nome', 'Contacto', 'Turma', 'Escola', 'Disponibilidade', 'Notas'];
   const rows = allData.map(r =>
-    [r.Nome||r.nome, r.Contacto||r.contacto, r.Turma||r.turma, r.Escola||r.escola, r.Disponibilidade||r.disponibilidade, r.Notas||r.notas, r.data]
+    [r.Nome||r.nome, r.Contacto||r.contacto, r.Turma||r.turma, r.Escola||r.escola, r.Disponibilidade||r.disponibilidade, r.Notas||r.notas]
       .map(v => `"${String(v || '').replace(/"/g, '""')}"`)
       .join(',')
   );
