@@ -40,7 +40,8 @@ async function loadData() {
     allData = json;
     renderRooms();
   } catch (e) {
-    container.innerHTML = '<div class="empty-state"><span>⚠️</span>Erro ao carregar dados.</div>';
+    console.error('Erro:', e);
+    container.innerHTML = '<div class="empty-state"><span>⚠️</span>Erro: ' + e.message + '</div>';
   }
 }
 
